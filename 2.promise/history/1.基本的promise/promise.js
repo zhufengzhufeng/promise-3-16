@@ -38,7 +38,7 @@ Promise.prototype.then = function(onfulfilled,onrejected){
         onrejected(self.reason);
     }
     if(self.status === 'pending'){ // 如果是异步的时候 ，需要把成功和失败 分别存放到数组里,发布订阅, 如果稍后调用了resolve  会让函数依次执行，执行的时候 会将成功或者失败的值进行传递
-        this.onResolveCallbacks.push(function(){
+        this.onResolveCallbacks.push(function(){ // TODO...
             onfulfilled(self.value);
         });
         this.onRejectedCallbacks.push(function(){
