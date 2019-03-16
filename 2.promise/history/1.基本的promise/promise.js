@@ -1,49 +1,39 @@
 console.log('my')
 function Promise(executor){
+    // 给promise定义状态
     this.status = 'pending';
+    // 成功和失败的原因
     this.value = undefined;
     this.reason = undefined;
     let self = this;
-
-    // 定义两个队列 存放对应的回调 
-    self.onResolveCallbacks = []; // 存放成功的回调
-    self.onRejectedCallbacks = []; // 存放失败的回调
     function reoslve(value){
         if(self.status === 'pending'){
             self.value = value;
             self.status = 'fulfilled';
-            self.onResolveCallbacks.forEach(fn=>fn())
         }
     }
     function reject(reason){
         if(self.status === 'pending'){
             self.reason = reason;
             self.status = 'rejected';
-            self.onRejectedCallbacks.forEach(fn=>fn())
         }
     }
+    // 执行器会立刻执行
     try{
         executor(reoslve,reject);
     }catch(e){
+        // 如果报错 调用then方法的失败方法即可
         reject(e);
     }
 }
 
 Promise.prototype.then = function(onfulfilled,onrejected){
     let self = this;
-    if(self.status === 'fulfilled'){ 
+    if(self.status === 'fulfilled'){ // 如果状态成功 则调用成功的回调
         onfulfilled(self.value);
     }
-    if(self.status === 'rejected'){
+    if(self.status === 'rejected'){ // 如果状态是是失败 则调用失败的回调
         onrejected(self.reason);
-    }
-    if(self.status === 'pending'){ // 如果是异步的时候 ，需要把成功和失败 分别存放到数组里,发布订阅, 如果稍后调用了resolve  会让函数依次执行，执行的时候 会将成功或者失败的值进行传递
-        this.onResolveCallbacks.push(function(){ // TODO...
-            onfulfilled(self.value);
-        });
-        this.onRejectedCallbacks.push(function(){
-            onrejected(self.reason);
-        })
     }
 }
 
